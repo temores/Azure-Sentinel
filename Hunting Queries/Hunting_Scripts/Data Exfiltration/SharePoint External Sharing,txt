@@ -1,0 +1,6 @@
+// Top file Downloads by users
+OfficeActivity
+| where OfficeWorkload in ('OneDrive', 'SharePoint')
+| where Operation == "AddedToSecureLink"
+| where TimeGenerated >= ago(2h)
+//| summarize count = count() by TargetUserOrGroupName

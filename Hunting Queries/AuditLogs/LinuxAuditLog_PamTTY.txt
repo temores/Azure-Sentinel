@@ -1,0 +1,19 @@
+LinuxAuditLog_CL
+| where TimeGenerated >= ago(4h)
+| where RecordType_s == "EXECVE"
+| where a0_s in ('vim','vmstat','lsof','tcpdump','netstat','htop','iotop','iostat','finger','apt','apt-get') and a1_s != "" and a2_s !in ('update','dist-upgrade','-qq')
+| extend ConsoleCommand = strcat(a0_s," ",a1_s," ",a2_s," ",a3_s)
+| where ConsoleCommand !contains "apt-get -qq"
+| project TimeGenerated, SerialNumber_s, Computer, RecordType_s, ConsoleCommand, a0_s, a1_s, a2_s
+| join kind= inner
+(
+    LinuxAuditLog_CL
+    | where RecordType_s in ('USER_START','USER_LOGIN','USER_END','USER_CMD', 'USER_AUTH', 'USER_ACCT', 'SYSCALL', 'PROCTITLE', 'PATH', 'LOGIN', 'EXECVE', 'CWD', 'CRED_REFR', 'CRED_DISP', 'CRED_ACQ')
+    | project TimeGenerated, RecordType_s, SerialNumber_s, audit_user_s, user_name_s , tty_s, success_s
+)
+on SerialNumber_s
+| summarize makeset(RecordType_s1), makeset(tty_s), makeset(success_s), User = makeset(user_name_s), AuditUser = makeset(audit_user_s) by TimeGenerated, SerialNumber_s, Computer, RecordType_s, ConsoleCommand
+| extend User = tostring(User[0]), Audit_User = tostring(AuditUser[0])
+| extend HostCustomEntity = Computer
+| extend AccountCustomEntity = Audit_User
+| extend URLCustomEntity = ConsoleCommand

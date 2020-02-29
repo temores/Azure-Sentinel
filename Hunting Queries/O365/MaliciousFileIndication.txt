@@ -1,0 +1,17 @@
+SecurityAlert
+| where TimeGenerated >= ago(30d)
+| where DisplayName == "A malicious file was detected based on indication provided by O365"
+| extend CreatedTimeUtc = tostring(parse_json(Entities)[4].CreatedTimeUtc)
+| extend LastAccessTimeUtc = tostring(parse_json(Entities)[4].LastAccessTimeUtc) 
+| extend LastWriteTimeUtc = tostring(parse_json(Entities)[4].LastWriteTimeUtc) 
+| extend IsDownloaded = tostring(parse_json(Entities)[4].IsDownloaded) 
+| extend SizeInBytes = tostring(parse_json(Entities)[4].SizeInBytes)
+| extend Directory = tostring(parse_json(Entities)[4].Directory) 
+| extend FileName = tostring(parse_json(Entities)[4].Name) 
+| extend SHA256 = tostring(parse_json(Entities)[3].Value) 
+| extend MD5 = tostring(parse_json(Entities)[2].Value) 
+| extend SHA1 = tostring(parse_json(Entities)[1].Value) 
+| extend HostName = tostring(parse_json(Entities)[0].HostName) 
+| extend HostCustomEntity = HostName 
+| extend FileCustomEntity = FileName 
+| extend HashCustomEntity = SHA1

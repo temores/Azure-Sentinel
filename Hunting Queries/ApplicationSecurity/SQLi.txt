@@ -1,0 +1,7 @@
+SecurityAlert
+| summarize arg_max(TimeGenerated, *) by SystemAlertId
+| where SystemAlertId in("0a3582d5-bc90-4419-904d-5c2af0749efb")
+| extend Server_ = tostring(parse_json(ExtendedProperties).Server)
+| where AlertName == "Potential SQL Injection"
+| extend Database_ = tostring(parse_json(ExtendedProperties).Database)
+| project AlertName, Server_, AlertSeverity, Database_, ConfidenceLevel, ExtendedProperties

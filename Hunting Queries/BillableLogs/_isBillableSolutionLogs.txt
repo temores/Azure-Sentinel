@@ -1,0 +1,14 @@
+// Data Usage + identify the resources emitting data
+let daystoSearch = 30d;
+union withsource = tt *
+| where TimeGenerated > ago(daystoSearch)
+//| where tt == “AzureDiagnostics” // look for a specifc solution?
+| summarize
+    RecordCount=count(),
+    MbperRecord = round(count() / sum(_BilledSize/1024/1024),2) ,
+    TotalMBytes= round(sum(_BilledSize/1024/1024),2)
+    by SolutionName = tt,
+_IsBillable, // is this billable data?
+ResourceProvider, // what Azure Service
+Resource // what entity in that service
+| sort by SolutionName asc, TotalMBytes

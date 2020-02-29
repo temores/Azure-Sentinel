@@ -1,0 +1,14 @@
+LinuxAuditLog_CL
+| where TimeGenerated >= ago(1h)
+| where RecordType_s == "EXECVE"
+| where a0_s == "vim" and a1_s != ""
+//| where a0_s == "lastlog" and a1_s == "-u"
+| project TimeGenerated, SerialNumber_s, Computer, RecordType_s, a0_s, a1_s
+| join kind= inner (
+   LinuxAuditLog_CL
+   //| where RecordType_s in ('EXECVE', 'SYSCALL')
+   | where RecordType_s in ('USER_START','USER_LOGIN','USER_END','USER_CMD', 'USER_AUTH', 'USER_ACCT', 'SYSCALL', 'PROCTITLE', 'PATH', 'LOGIN', 'EXECVE', 'CWD', 'CRED_REFR', 'CRED_DISP', 'CRED_ACQ')
+   | project TimeGenerated, RecordType_s, SerialNumber_s, audit_user_s, user_name_s , tty_s, success_s
+) on SerialNumber_s
+| top 10 by SerialNumber_s desc
+| summarize makeset(RecordType_s1), makeset(audit_user_s), makeset(user_name_s), makeset(tty_s), makeset(success_s) by TimeGenerated, SerialNumber_s, Computer, RecordType_s, a0_s, a1_s

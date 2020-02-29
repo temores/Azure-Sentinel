@@ -1,0 +1,4 @@
+AuditLogs
+| where TimeGenerated >= ago(30d)
+| summarize Count = count() by OperationName
+| top 100 by Count desc

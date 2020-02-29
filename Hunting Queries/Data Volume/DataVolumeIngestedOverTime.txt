@@ -1,0 +1,5 @@
+Usage 
+| where TimeGenerated > startofday(ago(365d))
+| where IsBillable == true
+| summarize TotalVolumeGB = sum(Quantity) / 1000. by bin(TimeGenerated, 1d), Solution
+| render barchart

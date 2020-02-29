@@ -1,0 +1,5 @@
+SecurityAlert
+| where Description == "Site is delivering malware." 
+| extend HostName_ = tostring(parse_json(Entities)[0].HostName) 
+| extend Name_ = tostring(parse_json(Entities)[1].Name) 
+| where ProductName == "Microsoft Defender Advanced Threat Protection" 

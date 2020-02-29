@@ -1,0 +1,6 @@
+AzureDiagnostics
+| where Category == "IKEDiagnosticLog"
+| where Message has "SESSION ID"
+| parse Message with * "Remote " RemoteIP ":" * "500: local " LocalIP ":" * "500: " Event
+| project TimeGenerated, RemoteIP,  LocalIP, Event , Level 
+| sort by TimeGenerated asc
